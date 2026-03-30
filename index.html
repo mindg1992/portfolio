@@ -705,7 +705,8 @@ function autoSave(){
     goalData.html = gid('goal-content').innerHTML;
     goalData.targetYear = gid('goal-target-year').value;
     goalData.targetAmt = gid('goal-target-amt').value;
-    var st=JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings});
+    var pw = window.PRELOADED ? (window.PRELOADED.pw || DEFAULT_PW_HASH) : DEFAULT_PW_HASH;
+    var st=JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw});
     if(window.localStorage)window.localStorage.setItem('pf-v18',st);
   }catch(e){}
 }
@@ -2009,6 +2010,7 @@ async function changePw(){
   if(nw!==cf){errEl.textContent='새 비밀번호가 일치하지 않습니다.';return;}
   var newHash = await sha256(nw);
   savePwStore(newHash);
+  scheduleSave(); // 변경된 비밀번호 즉시 localStorage에 저장
   errEl.style.color='#1B5E20';
   errEl.textContent='✅ 비밀번호가 변경됐습니다!';
   document.getElementById('pw-cur').value='';
