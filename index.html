@@ -2043,7 +2043,9 @@ function fixNavPosition(){
 
 async function init(){
   if(PRELOADED) applyState(PRELOADED);
-  else{try{if(window.localStorage){var r=window.localStorage.getItem('pf-v18');if(r)applyState(JSON.parse(r));}}catch(e){}}
+  // localStorage가 항상 PRELOADED보다 우선 적용됨
+  // (GitHub Pages 배포 환경에서 비밀번호 변경/데이터 입력이 유지되도록)
+  try{if(window.localStorage){var r=window.localStorage.getItem('pf-v18');if(r)applyState(JSON.parse(r));}}catch(e){}
   var ly=lastYear(); if(!yearAssets[ly]) saveSnapshot(ly);
   renderTable();
   renderRebal();
