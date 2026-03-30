@@ -2010,7 +2010,7 @@ async function changePw(){
   if(nw!==cf){errEl.textContent='새 비밀번호가 일치하지 않습니다.';return;}
   var newHash = await sha256(nw);
   savePwStore(newHash);
-  scheduleSave(); // 변경된 비밀번호 즉시 localStorage에 저장
+  autoSave(); // 비밀번호는 딜레이 없이 즉시 localStorage에 저장
   errEl.style.color='#1B5E20';
   errEl.textContent='✅ 비밀번호가 변경됐습니다!';
   document.getElementById('pw-cur').value='';
