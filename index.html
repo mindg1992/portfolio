@@ -1982,10 +1982,11 @@ async function askAI(type) {
       var monthlyRet = nMonths > 0 ? ((Math.pow(lastTotal/firstTotal, 1/nMonths)-1)*100).toFixed(2) : null;
       var sign = parseFloat(netReturnPct) >= 0 ? '+' : '';
       actualReturnStr = sign + netReturnPct + '% (순수익 ₩' + fmt(netProfit) + '원)'
-        + (monthlyRet ? ' / 월 복리 환산 ' + (parseFloat(monthlyRet)>=0?'+':'') + monthlyRet + '%' : '');
+        + (monthlyRet ? ' / 월 복리 환산 ' + (parseFloat(monthlyRet)>=0?'+':'') + monthlyRet + '% (적립금 포함 순수 포트폴리오 합계액 증가율' : '');
     }
   }
 
+  var hasLoan = yrAssets.some(function(a){ return a.type === 'loan'; });
   var ctx = buildPortfolioContext();
   var goalStr = goalTargetYear + '년까지 ' + fmtKor(goalTargetAmt) + ' 달성';
 
@@ -1994,12 +1995,12 @@ async function askAI(type) {
       + '\n■ 마지막 월 적립금 (' + lastSavDisp + '): ₩' + fmt(lastSav) + '원'
       + '\n\n【 실제 운용 수익률 현황 】\n'
       + '- 투자 시작 이후 현재까지 실제 수익률(적립금 제외 순수익 기준): ' + actualReturnStr + '\n'
-      + '※ 주의: 위 실제 수익률(순수익)은 대출금이 포함된 자산 합계 기준으로 계산된 값입니다. 대출금을 제외한 순수 자산(전체 자산 합계 = 대출 제외 기준) 대비 실제 수익률로 평가해 주세요.\n'
+      + (hasLoan ? '※ 주의: 위 실제 수익률(순수익)은 대출금이 포함된 자산 합계 기준으로 계산된 값입니다. 대출금을 제외한 순수 자산(전체 자산 합계 = 대출 제외 기준) 대비 실제 수익률로 평가해 주세요.\n' : '')
       + '- 위 실제 수익률이 목표 기대수익률 대비 어떤 수준인지 평가해 주세요.\n\n'
       + '위 포트폴리오와 현재 2026년 3월 기준 한국 시장 상황 및 글로벌 시장 상황 등을 반영하여 아래를 분석해 주세요:\n\n'
       + '① AI가 현재 시장흐름을 반영한 현실적 ' + goalTargetYear + '년 자산 전망 (낙관/기본/보수 3가지 시나리오, 구체적 금액)\n'
       + '② 나의 기대수익률 기반 예상치와 AI 분석 예상치의 차이 및 원인 설명\n'
-      + '③ 실제 수익률(' + actualReturnStr + ')에 대한 평가 및 개선 포인트 (※이 수익률은 대출금이 포함된 자산 기준이므로, 대출금을 제외한 전체 자산 합계 기준으로도 함께 평가해 주세요)\n'
+      + '③ 실제 수익률(' + actualReturnStr + ')에 대한 평가 및 개선 포인트' + (hasLoan ? ' (※이 수익률은 대출금이 포함된 자산 기준이므로, 대출금을 제외한 전체 자산 합계 기준으로도 함께 평가해 주세요)' : '') + '\n'
       + '④ 목표 [' + goalStr + '] 달성 가능성 평가 및 조언\n'
       + '\n한국어로 답변해 주세요.',
     2: (function(){
