@@ -1,6 +1,6 @@
 <html><head>
 <meta charset="UTF-8">
-<title>포트폴리오트래커 v1.9.0 (Calculated Simulation)</title>
+<title>포트폴리오트래커 v1.9.1 (Calculated Simulation)</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
@@ -189,7 +189,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 <div id="app-header" style="background:#1a3a2a;border-bottom:0.5px solid #2d5a3d;padding:8px 12px;position:sticky;top:0;z-index:51">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span style="font-size:13px;font-weight:700;color:#fff">📊 포트폴리오 트래커 v1.9.0</span>
+      <span style="font-size:13px;font-weight:700;color:#fff">📊 포트폴리오 트래커 v1.9.1</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
       <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">
@@ -517,45 +517,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span id="ai-spinner" style="display: none; width: 14px; height: 14px; border-width: 2px; border-style: solid; border-color: rgb(27, 94, 32) rgb(165, 214, 167) rgb(165, 214, 167); border-image: initial; border-radius: 50%; animation: 0.8s linear 0s infinite normal none running spin;"></span>
       <span id="ai-status-text">✅ 클립보드에 복사됨 — Claude.ai 새 탭이 열렸습니다. Ctrl+V 후 전송하세요!</span>
     </div>
-    <div id="ai-result" style="background:#fff;border:0.5px solid #c8b84a;border-radius:10px;padding:16px;font-size:13px;line-height:1.8;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;min-height:80px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">📋</span><span style="font-size:13px;font-weight:700;color:#1a3a2a">📈 2050년 자산액 전망</span></div><div style="font-size:12px;color:#388E3C;background:#f1f8f1;border-radius:7px;padding:8px 12px;margin-bottom:10px;line-height:1.7">프롬프트가 복사됐습니다. 열린 Claude.ai 창에 <b>Ctrl+V → 전송</b> 하세요!</div><div style="font-size:11px;color:#999;margin-bottom:5px">📄 프롬프트 전문 (스크롤 가능):</div><div style="position:relative"><textarea id="prompt-preview" style="width:100%;height:240px;font-size:11px;border:1px solid #d4e4d4;border-radius:8px;padding:10px 10px 40px;resize:vertical;font-family:monospace;line-height:1.6;color:#333;background:#fafafa;box-sizing:border-box" readonly="">다음은 저의 현재 포트폴리오 현황입니다:
-
-=== 현재 포트폴리오 현황 (기준: 2026년 3월) ===
-■ 포트폴리오 총 자산: ₩150,014,980
-■ 전체 자산 합계(대출 제외): ₩202,937,257
-
-[ 자산별 현황 ]
-  - S&amp;P 500 (ISA+직투): ₩35,530,665 (현재비중:23.7% / 목표:25% / 기대수익률:10% 복리)
-  - Nasdaq 100 (ISA+직투): ₩35,203,640 (현재비중:23.5% / 목표:25% / 기대수익률:10% 복리)
-  - SCHD (ISA): ₩22,200,750 (현재비중:14.8% / 목표:10% / 기대수익률:10% 복리)
-  - BTC (업비트): ₩8,303,510 (현재비중:5.5% / 목표:6% / 기대수익률:20% 복리)
-  - ETH (업비트): ₩4,711,450 (현재비중:3.1% / 목표:4% / 기대수익률:20% 복리)
-  - 미국채권 (연금저축): ₩6,038,760 (현재비중:4.0% / 목표:3% / 기대수익률:5% 복리)
-  - 현금 (한투CMA): ₩12,126,205 (현재비중:8.1% / 목표:10% / 기대수익률:3.5% 단리)
-  - 청년도약 (만기:29년): ₩25,900,000 (현재비중:17.3% / 목표:17% / 기대수익률:10% 단리)
-  - 보증금 전세: ₩50,000,000 (현재비중:별도 / 목표:별도 / 기대수익률:6% 단리)
-  - NVDA 직투: ₩2,922,277 (현재비중:별도 / 목표:별도 / 기대수익률:20% 복리)
-  - OPEN 직투: ₩0 (현재비중:별도 / 목표:별도 / 기대수익률:20% 복리)
-
-[ 연도별 월 평균 적립금 ]
-  - 2026년: 월 평균 ₩3,800,000원 (입력 3개월 기준)
-
-[ 투자 목표 ]
-  - 목표: 2050년까지 30억원 달성
-  - 주요 자산: S&amp;P 500 25%, Nasdaq 100 25%, SCHD 10%, BTC 6%, ETH 4%, 미국채권 3%, 현금 10%, 청년도약 17%
-■ 마지막 월 적립금 (3월): ₩4,000,000원
-
-【 실제 운용 수익률 현황 】
-- 투자 시작 이후 현재까지 실제 수익률(적립금 제외 순수익 기준): -2.9% (순수익 ₩-4,250,146원) / 월 복리 환산 +1.07%
-- 위 실제 수익률이 목표 기대수익률 대비 어떤 수준인지 평가해 주세요.
-
-위 포트폴리오와 현재 2026년 3월 기준 한국 시장 상황 및 글로벌 시장 상황 등을 반영하여 아래를 분석해 주세요:
-
-① AI가 현재 시장흐름을 반영한 현실적 2050년 자산 전망 (낙관/기본/보수 3가지 시나리오, 구체적 금액)
-② 나의 기대수익률 기반 예상치와 AI 분석 예상치의 차이 및 원인 설명
-③ 실제 수익률(-2.9% (순수익 ₩-4,250,146원) / 월 복리 환산 +1.07%)에 대한 평가 및 개선 포인트
-④ 목표 [2050년까지 30억원 달성] 달성 가능성 평가 및 조언
-
-한국어로 답변해 주세요.</textarea><button id="copy-again-btn" onclick="copyPromptAgain()" style="position:absolute;bottom:10px;right:10px;background:#1a3a2a;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">📋 다시 복사</button></div></div>
+    <div id="ai-result" style="background:#fff;border:0.5px solid #c8b84a;border-radius:10px;padding:16px;font-size:13px;line-height:1.8;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;min-height:80px"></div>
   </div>
 </div>
 </div>
