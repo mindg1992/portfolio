@@ -1982,7 +1982,7 @@ async function askAI(type) {
       var monthlyRet = nMonths > 0 ? ((Math.pow(lastTotal/firstTotal, 1/nMonths)-1)*100).toFixed(2) : null;
       var sign = parseFloat(netReturnPct) >= 0 ? '+' : '';
       actualReturnStr = sign + netReturnPct + '% (순수익 ₩' + fmt(netProfit) + '원)'
-        + (monthlyRet ? ' / 월 복리 환산 ' + (parseFloat(monthlyRet)>=0?'+':'') + monthlyRet + '% (적립금 포함 순수 포트폴리오 합계액 증가율)' : '');
+        + (monthlyRet ? ' / 월 복리 환산 ' + (parseFloat(monthlyRet)>=0?'+':'') + monthlyRet + '% (적립금 포함 순수 포트폴리오 합계액 증가율' : '');
     }
   }
 
