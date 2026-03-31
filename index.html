@@ -843,6 +843,9 @@ function applyState(s){
   if(s.D){D={};for(var k in s.D)D[Number(k)]=s.D[k];}
   if(s.nid)nid=s.nid;
   if(s.yearAssets)yearAssets=s.yearAssets;
+  // yearAssets[lastYear]를 assets의 정본으로 사용: 불러오기 후 assets가 오래된 경우 방지
+  var _ly=lastYear();
+  if(yearAssets[_ly]&&yearAssets[_ly].length)assets=deepCopyAssets(yearAssets[_ly]);
   if(s.simTargetYear)simTargetYear=s.simTargetYear;
   if(s.monthSavings)monthSavings=s.monthSavings;
   if(s.pw&&window.PRELOADED) {
