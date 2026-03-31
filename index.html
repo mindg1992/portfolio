@@ -2193,6 +2193,9 @@ async function init(){
   }
 }
 window.addEventListener('resize',fixNavPosition);
+// 페이지 이탈 전 즉시 저장 (scheduleSave 타이머가 아직 안 끝났을 경우 대비)
+window.addEventListener('beforeunload',function(){if(saveTimer){clearTimeout(saveTimer);autoSave();}});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&saveTimer){clearTimeout(saveTimer);autoSave();}});
 init();
 </script>
 
