@@ -640,6 +640,7 @@ var _ORIG_HTML = document.documentElement.outerHTML;
 var defER={stock:15,etf:10,bond:4,savings:4,cash:3.5,real:8,realestate:6,lottery:20};
 var nid=1;
 var editingId=null;
+var editingYear=null;
 var simTargetYear=2050;
 var yearAssets={};
 var goalData = {title: '', html: '', targetYear: '', targetAmt: ''};
@@ -1018,7 +1019,7 @@ function renderTable(){
       html+='<td class="sk-h drag-handle" style="background:#f9f9f9 !important">⋮⋮</td>';
       html+='<td class="sk1" style="background:'+bg+';padding:3px 6px;min-width:'+W1+'px;width:'+W1+'px">';
       html+='<div style="display:flex;align-items:center;gap:3px">';
-      html+='<div class="asset-clickable" onclick="openEditModal('+a.id+')">';
+      html+='<div class="asset-clickable" onclick="openEditModal('+a.id+','+year+')">';
       html+='<span class="name-text">'+a.name+'</span>';
       html+='<span class="er-badge">'+a.er+'%</span>';
       html+='<span class="sub-in-static">'+a.sub+'</span></div>';
@@ -1404,9 +1405,11 @@ function openModal(){
   setInclude(true);
   gid('modal').style.display='flex'; gid('m-name').focus();
 }
-function openEditModal(id){
-  var a=assets.find(function(x){return x.id===id;}); if(!a) return;
+function openEditModal(id, year){
+  var yr = (year !== undefined) ? year : lastYear();
+  var a=getAssetsForYear(yr).find(function(x){return x.id===id;}); if(!a) return;
   editingId=id;
+  editingYear=yr;
   gid('modal-title').textContent='종목 정보 수정';
   gid('m-btn-save').textContent='저장';
   gid('m-name').value=a.name; gid('m-sub').value=a.sub;
@@ -1451,7 +1454,8 @@ function saveAsset(){
   var isExcluded = !getInclude();
 
   if(!isExcluded){
-    var sumOthers = assets.filter(function(x){return !x.bonus && x.id!==editingId;}).reduce(function(s,x){return s+x.tgt;},0);
+    var editYrAssets = editingId !== null ? getAssetsForYear(editingYear||lastYear()) : assets;
+    var sumOthers = editYrAssets.filter(function(x){return !x.bonus && x.id!==editingId;}).reduce(function(s,x){return s+x.tgt;},0);
     if(sumOthers + tgt > 100){
       alert('목표 비중 합계가 100%를 초과할 수 없습니다.\n현재 다른 자산 합계: '+sumOthers+'%\n입력 가능 최대값: '+(100-sumOthers)+'%');
       return;
@@ -1459,13 +1463,28 @@ function saveAsset(){
   }
 
   if(editingId !== null){
-    var a=assets.find(function(x){return x.id===editingId;});
-    if(a){ a.name=name; a.sub=sub; a.type=type; a.tgt=isExcluded?0:tgt; a.er=er; a.it=it; a.bonus=isExcluded; }
-    // 모든 연도 yearAssets에 자산 메타데이터 동기화 (name/sub/type/er/it은 연도 공통, tgt/bonus는 연도별 유지)
+    var ly=lastYear();
+    var targetYr = editingYear||ly;
+    // 해당 연도 yearAssets만 업데이트 (연도별 독립)
+    if(yearAssets[targetYr]){
+      var ya=yearAssets[targetYr].find(function(x){return x.id===editingId;});
+      if(ya){ ya.name=name; ya.sub=sub; ya.type=type; ya.tgt=isExcluded?0:tgt; ya.er=er; ya.it=it; ya.bonus=isExcluded; }
+    }
+    // 마지막 연도면 assets(현재 작업셋)도 동기화
+    if(targetYr===ly){
+      var a=assets.find(function(x){return x.id===editingId;});
+      if(a){ a.name=name; a.sub=sub; a.type=type; a.tgt=isExcluded?0:tgt; a.er=er; a.it=it; a.bonus=isExcluded; }
+    }
+    // 자산명/설명은 모든 연도에 동기화 (식별자)
     Object.keys(yearAssets).forEach(function(yr){
-      var ya=yearAssets[yr].find(function(x){return x.id===editingId;});
-      if(ya){ ya.name=name; ya.sub=sub; ya.type=type; ya.er=er; ya.it=it; }
+      if(+yr===targetYr) return;
+      var ya2=yearAssets[yr].find(function(x){return x.id===editingId;});
+      if(ya2){ ya2.name=name; ya2.sub=sub; }
     });
+    if(targetYr!==ly){
+      var a2=assets.find(function(x){return x.id===editingId;});
+      if(a2){ a2.name=name; a2.sub=sub; }
+    }
   } else {
     var id=nid++; assets.push({id:id,name:name,sub:sub,type:type,tgt:isExcluded?0:tgt,bonus:isExcluded,er:er,it:it}); D[id]={};
   }
