@@ -728,7 +728,6 @@ function addYear(){
   }
   var prevYr=ord[ord.length-1];
   var newYr=prevYr+1;
-  saveSnapshot(prevYr);
   var baseAssets=deepCopyAssets(yearAssets[prevYr]||assets);
   assets=deepCopyAssets(baseAssets);
   assets.forEach(function(a){if(!D[a.id])D[a.id]={};});
@@ -1364,7 +1363,7 @@ function setTgtInArr(year, id, v){
       alert('목표 비중 합계가 100%를 초과할 수 없습니다.\n현재 다른 자산 합계: '+sumOthers+'%\n입력 가능 최대값: '+(100-sumOthers)+'%');
       renderTable(); return;
     }
-    a.tgt=newVal; if(year===lastYear()) assets=yrA; saveSnapshot(year); renderTable(); scheduleSave();
+    a.tgt=newVal; if(year===lastYear()){ assets=yrA; saveSnapshot(year); } renderTable(); scheduleSave();
   }
 }
 function setV(id,mi,sv){var m=months[mi];if(!D[id])D[id]={};D[id][m]=fmtI(sv);renderTable();scheduleSave();}
