@@ -641,6 +641,7 @@ var defER={stock:15,etf:10,bond:4,savings:4,cash:3.5,real:8,realestate:6,lottery
 var nid=1;
 var editingId=null;
 var editingYear=null;
+var addingYear=null;
 var simTargetYear=2050;
 var yearAssets={};
 var goalData = {title: '', html: '', targetYear: '', targetAmt: ''};
@@ -988,7 +989,7 @@ function renderTable(){
       html+='<span class="yr-title">'+year+'년</span>';
     }
     html+='<span class="yr-info">'+yrMs.length+'개월</span>';
-    html+='<button class="yrbtn" onclick="openModal()">+ 종목 추가</button>';
+    html+='<button class="yrbtn" onclick="openModal('+year+')">+ 종목 추가</button>';
     html+='<button class="yrbtn" onclick="addMonthToYear('+year+')">+ 다음 달 추가</button>';
     if(isLastYr&&ord.length>1){ html+='<button class="yrbtn-del" onclick="delYear('+year+')">🗑 연도 삭제</button>'; }
     html+='</div><div class="tbl-scroll"><table><thead><tr>';
@@ -1023,7 +1024,7 @@ function renderTable(){
       html+='<span class="name-text">'+a.name+'</span>';
       html+='<span class="er-badge">'+a.er+'%</span>';
       html+='<span class="sub-in-static">'+a.sub+'</span></div>';
-      html+='<button class="del-btn" onclick="delAsset('+a.id+')">✕</button></div>';
+      html+='<button class="del-btn" onclick="delAsset('+a.id+','+year+')">✕</button></div>';
       html+='</td>';
       
       if(a.bonus){
@@ -1360,7 +1361,16 @@ function setTgtInArr(year, id, v){
   }
 }
 function setV(id,mi,sv){var m=months[mi];if(!D[id])D[id]={};D[id][m]=fmtI(sv);renderTable();scheduleSave();}
-function delAsset(id){if(!confirm('삭제하시겠습니까?'))return; assets=assets.filter(function(a){return a.id!==id;}); delete D[id]; Object.keys(yearAssets).forEach(y => { yearAssets[y] = yearAssets[y].filter(a=>a.id!==id); }); saveSnapshot(lastYear()); renderTable(); scheduleSave();}
+function delAsset(id,year){
+  if(!confirm('삭제하시겠습니까?'))return;
+  var yr=year!==undefined?year:lastYear();
+  yearAssets[yr]=(yearAssets[yr]||[]).filter(function(a){return a.id!==id;});
+  if(yr===lastYear()) assets=assets.filter(function(a){return a.id!==id;});
+  // 모든 연도에서 해당 id가 완전히 사라진 경우에만 D 정리
+  var existsAnywhere=Object.keys(yearAssets).some(function(y){return (yearAssets[y]||[]).some(function(a){return a.id===id;});});
+  if(!existsAnywhere&&!assets.some(function(a){return a.id===id;})) delete D[id];
+  renderTable();scheduleSave();
+}
 
 function onTypeChange(){
   var t=gid('m-type').value;
@@ -1395,8 +1405,9 @@ function setInclude(val){
 }
 function getInclude(){ var m=gid('modal'); return m._include !== false; }
 
-function openModal(){
+function openModal(year){
   editingId=null;
+  addingYear=year!==undefined?year:lastYear();
   gid('modal-title').textContent='새 종목 추가';
   gid('m-btn-save').textContent='추가';
   gid('m-name').value=''; gid('m-sub').value=''; gid('m-tgt').value=''; gid('m-er').value='';
@@ -1454,7 +1465,8 @@ function saveAsset(){
   var isExcluded = !getInclude();
 
   if(!isExcluded){
-    var editYrAssets = editingId !== null ? getAssetsForYear(editingYear||lastYear()) : assets;
+    var chkYr = editingId !== null ? (editingYear||lastYear()) : (addingYear||lastYear());
+    var editYrAssets = getAssetsForYear(chkYr);
     var sumOthers = editYrAssets.filter(function(x){return !x.bonus && x.id!==editingId;}).reduce(function(s,x){return s+x.tgt;},0);
     if(sumOthers + tgt > 100){
       alert('목표 비중 합계가 100%를 초과할 수 없습니다.\n현재 다른 자산 합계: '+sumOthers+'%\n입력 가능 최대값: '+(100-sumOthers)+'%');
@@ -1465,7 +1477,7 @@ function saveAsset(){
   if(editingId !== null){
     var ly=lastYear();
     var targetYr = editingYear||ly;
-    // 해당 연도 yearAssets만 업데이트 (연도별 독립)
+    // 해당 연도 yearAssets만 업데이트 (연도별 완전 독립)
     if(yearAssets[targetYr]){
       var ya=yearAssets[targetYr].find(function(x){return x.id===editingId;});
       if(ya){ ya.name=name; ya.sub=sub; ya.type=type; ya.tgt=isExcluded?0:tgt; ya.er=er; ya.it=it; ya.bonus=isExcluded; }
@@ -1475,18 +1487,14 @@ function saveAsset(){
       var a=assets.find(function(x){return x.id===editingId;});
       if(a){ a.name=name; a.sub=sub; a.type=type; a.tgt=isExcluded?0:tgt; a.er=er; a.it=it; a.bonus=isExcluded; }
     }
-    // 자산명/설명은 모든 연도에 동기화 (식별자)
-    Object.keys(yearAssets).forEach(function(yr){
-      if(+yr===targetYr) return;
-      var ya2=yearAssets[yr].find(function(x){return x.id===editingId;});
-      if(ya2){ ya2.name=name; ya2.sub=sub; }
-    });
-    if(targetYr!==ly){
-      var a2=assets.find(function(x){return x.id===editingId;});
-      if(a2){ a2.name=name; a2.sub=sub; }
-    }
   } else {
-    var id=nid++; assets.push({id:id,name:name,sub:sub,type:type,tgt:isExcluded?0:tgt,bonus:isExcluded,er:er,it:it}); D[id]={};
+    var id=nid++;
+    var newAsset={id:id,name:name,sub:sub,type:type,tgt:isExcluded?0:tgt,bonus:isExcluded,er:er,it:it};
+    var targetAddYr=addingYear!==null?addingYear:lastYear();
+    if(!yearAssets[targetAddYr]) yearAssets[targetAddYr]=[];
+    yearAssets[targetAddYr].push(newAsset);
+    if(targetAddYr===lastYear()) assets.push(newAsset);
+    D[id]={};
   }
   saveSnapshot(lastYear()); closeModal(); renderTable(); scheduleSave();
 }
