@@ -811,8 +811,15 @@ function delMonth(idx){
   var thisMon=getMon(months[idx]);
   if(thisMon!==maxMon){alert(year+'년 '+thisMon+'월은 삭제할 수 없습니다.\n'+maxMon+'월부터 먼저 삭제해주세요.');return;}
   if(!confirm("'"+months[idx]+"'을 삭제하시겠습니까?"))return;
+  var isLastMonthOfYear=(yrMs.length===1);
   var m=months[idx];months.splice(idx,1);
   assets.forEach(function(a){if(D[a.id])delete D[a.id][m];});
+  // 해당 연도의 유일한 달을 삭제한 경우: 이전 연도 스냅샷으로 assets 복원
+  // (그렇지 않으면 autoSave가 수정된 assets로 이전 연도 스냅샷을 덮어씀)
+  if(isLastMonthOfYear){
+    var newLast=lastYear();
+    if(yearAssets[newLast])assets=deepCopyAssets(yearAssets[newLast]);
+  }
   renderTable();scheduleSave();
 }
 
