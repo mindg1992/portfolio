@@ -635,6 +635,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 Chart.register(ChartDataLabels);
 
 var PRELOADED=window.PRELOADED||null;
+// 페이지 로드 직후 원본 HTML 소스 캡처 (renderTable 등 DOM 변경 전)
+var _ORIG_HTML = document.documentElement.outerHTML;
 var defER={stock:15,etf:10,bond:4,savings:4,cash:3.5,real:8,realestate:6,lottery:20};
 var nid=1;
 var editingId=null;
@@ -929,17 +931,8 @@ function triggerDownload(){
       setTimeout(function(){try{document.body.removeChild(a);URL.revokeObjectURL(url);}catch(e){}},1500);
     }catch(e){alert('저장 오류: '+e.message);}
   }
-  // 원본 소스 파일을 fetch해서 수정 (렌더링된 DOM 대신 원본 HTML 소스 사용)
-  fetch(location.href, {cache:'no-store'})
-    .then(function(r){return r.text();})
-    .then(function(src){doSave(src);})
-    .catch(function(){
-      // fetch 실패 시 outerHTML 방식으로 폴백
-      var fb=document.documentElement.outerHTML;
-      fb=fb.replace(/id="pw-overlay"[^>]*style="[^"]*display:[^"]*"/, function(m){ return m.replace(/display:[^;"]*/,'display:flex'); });
-      fb=fb.replace(/id="app"[^>]*style="[^"]*display:[^"]*"/, function(m){ return m.replace(/display:[^;"]*/,'display:none'); });
-      doSave(fb);
-    });
+  // 페이지 로드 시 캡처해둔 원본 HTML 사용 (DOM 변경 전 상태)
+  doSave(_ORIG_HTML);
 }
 
 var draggedId = null;
