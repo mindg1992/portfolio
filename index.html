@@ -1461,6 +1461,11 @@ function saveAsset(){
   if(editingId !== null){
     var a=assets.find(function(x){return x.id===editingId;});
     if(a){ a.name=name; a.sub=sub; a.type=type; a.tgt=isExcluded?0:tgt; a.er=er; a.it=it; a.bonus=isExcluded; }
+    // 모든 연도 yearAssets에 자산 메타데이터 동기화 (name/sub/type/er/it은 연도 공통, tgt/bonus는 연도별 유지)
+    Object.keys(yearAssets).forEach(function(yr){
+      var ya=yearAssets[yr].find(function(x){return x.id===editingId;});
+      if(ya){ ya.name=name; ya.sub=sub; ya.type=type; ya.er=er; ya.it=it; }
+    });
   } else {
     var id=nid++; assets.push({id:id,name:name,sub:sub,type:type,tgt:isExcluded?0:tgt,bonus:isExcluded,er:er,it:it}); D[id]={};
   }
