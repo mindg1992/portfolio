@@ -824,9 +824,9 @@ function autoSave(){
     goalData.targetYear = gid('goal-target-year').value;
     goalData.targetAmt = gid('goal-target-amt').value;
     var pw = window.PRELOADED ? (window.PRELOADED.pw || DEFAULT_PW_HASH) : DEFAULT_PW_HASH;
-    var st=JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw});
+    var st=JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw,_ts:Date.now()});
     if(window.localStorage)window.localStorage.setItem('pf-v18',st);
-  }catch(e){}
+  }catch(e){console.error('autoSave 오류:',e);}
 }
 
 function applyState(s){
@@ -870,7 +870,7 @@ function exportJSON(){
     goalData.targetYear = gid('goal-target-year').value;
     goalData.targetAmt = gid('goal-target-amt').value;
     var pw = window.PRELOADED ? (window.PRELOADED.pw || DEFAULT_PW_HASH) : DEFAULT_PW_HASH;
-    var data = {assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw};
+    var data = {assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw,_ts:Date.now()};
     if(window.localStorage) window.localStorage.setItem('pf-v18', JSON.stringify(data));
     var st = JSON.stringify(data, null, 2);
     var blob = new Blob([st], {type:'application/json;charset=utf-8'});
@@ -893,6 +893,7 @@ function importJSON(){
       try{
         var data = JSON.parse(ev.target.result);
         if(!confirm('현재 데이터를 선택한 백업 파일로 덮어씁니다.\n계속하시겠습니까?')) return;
+        clearTimeout(saveTimer);
         applyState(data);
         renderTable(); renderRebal();
         autoSave();
@@ -915,7 +916,7 @@ function triggerDownload(){
   goalData.targetYear = gid('goal-target-year').value;
   goalData.targetAmt = gid('goal-target-amt').value;
   var pw = window.PRELOADED ? (window.PRELOADED.pw || DEFAULT_PW_HASH) : DEFAULT_PW_HASH;
-  var st=JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw});
+  var st=JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw,_ts:Date.now()});
   if(window.localStorage) window.localStorage.setItem('pf-v18', st);
   var name=prompt('저장할 파일 이름','포트폴리오_'+new Date().toLocaleDateString('ko-KR').replace(/\.\s*/g,'').replace(/ /g,''));
   if(!name)return;
@@ -2171,11 +2172,19 @@ function fixNavPosition(){
 }
 
 async function init(){
-  if(PRELOADED) applyState(PRELOADED);
-  // STANDALONE 파일(다른이름으로 저장)은 PRELOADED가 최신 데이터 → localStorage 덮어씌우기 스킵
-  // 일반 환경(GitHub Pages 등)은 localStorage 우선 적용
-  if(!window.PRELOADED_STANDALONE){
-    try{if(window.localStorage){var r=window.localStorage.getItem('pf-v18');if(r)applyState(JSON.parse(r));}}catch(e){}
+  var preloadedTs = (PRELOADED && PRELOADED._ts) || 0;
+  var lsData = null;
+  try{if(window.localStorage){var r=window.localStorage.getItem('pf-v18');if(r)lsData=JSON.parse(r);}}catch(e){}
+  var lsTs = (lsData && lsData._ts) || 0;
+  if(window.PRELOADED_STANDALONE){
+    // STANDALONE 파일: 타임스탬프 비교로 더 최신 데이터 사용
+    // localStorage가 파일 생성 이후 저장된 데이터라면 우선 적용 (사용자의 로컬 편집 내역 보존)
+    if(PRELOADED) applyState(PRELOADED);
+    if(lsData && lsTs > preloadedTs) applyState(lsData);
+  } else {
+    // 일반 환경(GitHub Pages 등): PRELOADED 먼저, localStorage로 최신화
+    if(PRELOADED) applyState(PRELOADED);
+    if(lsData) applyState(lsData);
   }
   var ly=lastYear(); if(!yearAssets[ly]) saveSnapshot(ly);
   renderTable();
