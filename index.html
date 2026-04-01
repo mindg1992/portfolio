@@ -866,8 +866,15 @@ function applyState(s){
   }
   assets.forEach(function(a){
     if(!D[a.id])D[a.id]={};
-    if(!a.er)a.er=defER[a.type]||10;
+    if(a.er == null)a.er=defER[a.type]||10;
     if(!a.it)a.it='compound';
+  });
+  // yearAssets 각 연도 항목도 동일하게 패치 (er=0 보존, it 기본값 보장)
+  Object.keys(yearAssets).forEach(function(yr){
+    (yearAssets[yr]||[]).forEach(function(a){
+      if(a.er == null)a.er=defER[a.type]||10;
+      if(!a.it)a.it='compound';
+    });
   });
 }
 
