@@ -1475,7 +1475,7 @@ function saveAsset(){
   var type = typeRaw==='custom' ? (gid('m-type-custom').value.trim()||'custom') : typeRaw;
   var tgt=Math.max(0,parseFloat(gid('m-tgt').value)||0);
   var er=parseFloat(gid('m-er').value);
-  if(isNaN(er)) er = defER[type]||10;
+  if(isNaN(er)) er = 0;
   var it=gid('m-it').value;
   var sub=gid('m-sub').value.trim();
   var isExcluded = !getInclude();
