@@ -186,7 +186,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 </div>
 
 <div id="app" style="display:none;">
-<div id="app-header" style="background:#1a3a2a;border-bottom:0.5px solid #2d5a3d;padding:8px 12px;position:sticky;top:0;z-index:51">
+<div id="app-header" style="background:#1a3a2a;padding:8px 12px;position:sticky;top:0;z-index:51">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <span style="font-size:13px;font-weight:700;color:#fff">📊 포트폴리오 트래커 v1.9.4</span>
@@ -2275,7 +2275,7 @@ function fixNavPosition(){
   var header=document.getElementById('app-header');
   var nav=document.querySelector('.nav');
   if(header&&nav){
-    var headerH=header.offsetHeight;
+    var headerH=Math.floor(header.getBoundingClientRect().height);
     var navH=nav.offsetHeight;
     nav.style.top=(headerH-1)+'px';
     var stickyOffset = headerH + navH + 8;
