@@ -559,15 +559,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 <div id="modal" style="display: none;" class="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <h3 id="modal-title">종목 정보 수정</h3>
-    <div class="mrow"><label>자산명</label><input id="m-name" placeholder="예: 삼성전자"></div>
-    <div class="mrow"><label>설명 (선택)</label><input id="m-sub" placeholder="예: (증권사)"></div>
+    <div class="mrow"><label>자산명</label><input id="m-name" placeholder="예: 삼성전자(대출이면 대출이름)"></div>
+    <div class="mrow"><label>설명 (선택)</label><input id="m-sub" placeholder="예: (ISA계좌, 연금저축계좌 등등)"></div>
     <div class="mrow"><label>자산 유형</label>
       <select id="m-type" onchange="onTypeChange()">
         <option value="stock">개별주식</option><option value="etf">ETF</option>
         <option value="bond">채권</option><option value="savings">적금</option>
         <option value="cash">현금</option><option value="real">현물 (금·원자재)</option>
         <option value="realestate">부동산</option>
-        <option value="loan">대출 (음수)</option>
+        <option value="loan">대출 (남은 대출원금을 입력)</option>
         <option value="custom">✏ 임의 입력</option>
       </select>
       <input id="m-type-custom" placeholder="유형 직접 입력" style="display: block; margin-top: 5px; width: 100%; padding: 7px 9px; border: 0.5px solid rgb(204, 204, 204); border-radius: 6px; font-size: 12px; outline: none;">
