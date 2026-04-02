@@ -8,7 +8,7 @@ input[type=number]:hover::-webkit-inner-spin-button,input[type=number]:hover::-w
 input[type=number]{-moz-appearance:textfield}
 
 div,span,td,th,button,input,select{font-family:-apple-system,'Apple SD Gothic Neo',sans-serif}
-.nav{display:flex;border-bottom:1px solid #c8b84a;background:#1a3a2a;position:sticky;top:0;z-index:50;margin-top:-1px}
+.nav{display:flex;border-bottom:1px solid #c8b84a;background:#1a3a2a;position:sticky;top:0;z-index:50}
 .nt{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:none;color:#a8c8a0;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .nt.on{color:#fff;font-weight:600;border-bottom-color:#FFC000}
 .nt:hover:not(.on){color:#e0f0d8;background:rgba(255,255,255,.07)}
@@ -186,7 +186,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 </div>
 
 <div id="app" style="display:none;">
-<div id="app-header" style="background:#1a3a2a;padding:8px 12px;position:sticky;top:0;z-index:51">
+<div id="app-header" style="background:#1a3a2a;padding:8px 12px;position:sticky;top:0;z-index:51;box-shadow:0 1px 0 0 #1a3a2a">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <span style="font-size:13px;font-weight:700;color:#fff">📊 포트폴리오 트래커 v1.9.4</span>
@@ -204,7 +204,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   </div>
 </div>
 
-<div class="nav" style="top: 44px;">
+<div class="nav">
   <button class="nt" onclick="sw('goal',this)">🎯 나의 목표</button>
   <button class="nt on" onclick="sw('tbl',this)">포트폴리오 입력</button>
   <button class="nt" onclick="sw('chart',this)">성장 차트</button>
@@ -2275,15 +2275,14 @@ function fixNavPosition(){
   var header=document.getElementById('app-header');
   var nav=document.querySelector('.nav');
   if(header&&nav){
-    var headerH=Math.floor(header.getBoundingClientRect().height);
-    var navH=nav.offsetHeight;
-    nav.style.top=(headerH-1)+'px';
-    var stickyOffset = headerH + navH + 8;
+    var headerH=header.getBoundingClientRect().height;
+    nav.style.top=headerH+'px';
+    var stickyOffset = headerH + nav.offsetHeight + 8;
     var side=document.getElementById('reb-sticky-side');
-    if(side) side.style.top=(stickyOffset-1)+'px';
+    if(side) side.style.top=stickyOffset+'px';
     // editor toolbar도 동일하게 보정
     var toolbar=document.querySelector('.editor-toolbar');
-    if(toolbar) toolbar.style.top=(headerH-1)+'px';
+    if(toolbar) toolbar.style.top=headerH+'px';
   }
 }
 
@@ -2315,6 +2314,9 @@ async function init(){
   // 앱이 이미 표시된 상태라면 바로 탭 위치 계산
   if(document.getElementById('app').style.display!=='none'){
     setTimeout(fixNavPosition,0);
+  }
+  if(window.ResizeObserver){
+    new ResizeObserver(fixNavPosition).observe(document.getElementById('app-header'));
   }
 }
 window.addEventListener('resize',fixNavPosition);
