@@ -8,7 +8,7 @@ input[type=number]:hover::-webkit-inner-spin-button,input[type=number]:hover::-w
 input[type=number]{-moz-appearance:textfield}
 
 div,span,td,th,button,input,select{font-family:-apple-system,'Apple SD Gothic Neo',sans-serif}
-.nav{display:flex;border-bottom:1px solid #c8b84a;background:#1a3a2a;position:sticky;top:0;z-index:50}
+.nav{display:flex;border-bottom:1px solid #c8b84a;background:#1a3a2a;position:sticky;top:0;z-index:50;margin-top:-1px}
 .nt{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:none;color:#a8c8a0;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .nt.on{color:#fff;font-weight:600;border-bottom-color:#FFC000}
 .nt:hover:not(.on){color:#e0f0d8;background:rgba(255,255,255,.07)}
@@ -2277,13 +2277,13 @@ function fixNavPosition(){
   if(header&&nav){
     var headerH=header.offsetHeight;
     var navH=nav.offsetHeight;
-    nav.style.top=headerH+'px';
+    nav.style.top=(headerH-1)+'px';
     var stickyOffset = headerH + navH + 8;
     var side=document.getElementById('reb-sticky-side');
-    if(side) side.style.top=stickyOffset+'px';
+    if(side) side.style.top=(stickyOffset-1)+'px';
     // editor toolbar도 동일하게 보정
     var toolbar=document.querySelector('.editor-toolbar');
-    if(toolbar) toolbar.style.top=headerH+'px';
+    if(toolbar) toolbar.style.top=(headerH-1)+'px';
   }
 }
 
