@@ -959,12 +959,20 @@ function autoSave(){
     if(window.localStorage)window.localStorage.setItem('pf-v18',st);
     if(fbUser){
       var _d=JSON.parse(st);
-      fbDb.collection('users').doc(fbUser.uid).collection('portfolio').doc('data').set(_d)
-        .catch(function(e){console.error('Firestore 저장 오류:',e);});
+      _firestoreWithTimeout(
+        fbDb.collection('users').doc(fbUser.uid).collection('portfolio').doc('data').set(_d),
+        10000
+      ).catch(function(e){console.error('Firestore 자동저장 오류:',e.message||e);});
     }
   }catch(e){console.error('autoSave 오류:',e);}
 }
 
+function _firestoreWithTimeout(promise, ms){
+  return Promise.race([
+    promise,
+    new Promise(function(_,reject){ setTimeout(function(){ reject(new Error('timeout_'+ms+'ms')); }, ms); })
+  ]);
+}
 async function manualCloudSave(){
   if(!fbUser) return;
   var btn = document.getElementById('cloud-save-btn');
@@ -982,15 +990,20 @@ async function manualCloudSave(){
     var pw = window.PRELOADED ? (window.PRELOADED.pw || DEFAULT_PW_HASH) : DEFAULT_PW_HASH;
     var st = JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw,_ts:Date.now()});
     if(window.localStorage) window.localStorage.setItem('pf-v18',st);
-    await fbDb.collection('users').doc(fbUser.uid).collection('portfolio').doc('data').set(JSON.parse(st));
+    await _firestoreWithTimeout(
+      fbDb.collection('users').doc(fbUser.uid).collection('portfolio').doc('data').set(JSON.parse(st)),
+      10000
+    );
     spinner.style.display = 'none';
     label.textContent = '✓ 저장됨';
     setTimeout(function(){ label.textContent = '☁ 저장'; btn.disabled = false; }, 2000);
   }catch(e){
-    console.error('수동 저장 오류:',e);
+    console.error('수동 저장 오류:', e.message || e);
     spinner.style.display = 'none';
-    label.textContent = '⚠ 실패';
-    setTimeout(function(){ label.textContent = '☁ 저장'; btn.disabled = false; }, 2000);
+    var isTimeout = e.message && e.message.startsWith('timeout');
+    label.textContent = isTimeout ? '⚠ 연결 실패' : '⚠ 저장 실패';
+    btn.title = e.message || String(e);
+    setTimeout(function(){ label.textContent = '☁ 저장'; btn.disabled = false; btn.title=''; }, 3000);
   }
 }
 
