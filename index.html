@@ -223,7 +223,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="hbtn hbtn-dl" onclick="triggerDownload()">💾 다른이름으로 저장</button>
       <button id="cloud-save-btn" class="hbtn" onclick="manualCloudSave()" style="display:none;background:rgba(100,180,255,.18);border:0.5px solid rgba(100,180,255,.5);color:#7ecfff;gap:6px;align-items:center">
         <span id="cloud-save-spinner" style="display:none;width:12px;height:12px;border:2px solid rgba(126,207,255,.3);border-top-color:#7ecfff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0"></span>
-        <span id="cloud-save-label">☁ 저장</span>
+        <span id="cloud-save-label">💾 저장</span>
       </button>
       <div id="fb-user-info" style="display:flex;align-items:center;gap:5px;margin-left:4px"></div>
     </div>
@@ -996,14 +996,14 @@ async function manualCloudSave(){
     );
     spinner.style.display = 'none';
     label.textContent = '✓ 저장됨';
-    setTimeout(function(){ label.textContent = '☁ 저장'; btn.disabled = false; }, 2000);
+    setTimeout(function(){ label.textContent = '💾 저장'; btn.disabled = false; }, 2000);
   }catch(e){
     console.error('수동 저장 오류:', e.message || e);
     spinner.style.display = 'none';
     var isTimeout = e.message && e.message.startsWith('timeout');
     label.textContent = isTimeout ? '⚠ 연결 실패' : '⚠ 저장 실패';
     btn.title = e.message || String(e);
-    setTimeout(function(){ label.textContent = '☁ 저장'; btn.disabled = false; btn.title=''; }, 3000);
+    setTimeout(function(){ label.textContent = '💾 저장'; btn.disabled = false; btn.title=''; }, 3000);
   }
 }
 
