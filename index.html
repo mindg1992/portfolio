@@ -131,6 +131,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .target-yr-input { border: 1px solid #a5d6a7; border-radius: 4px; width: 55px; text-align: center; font-weight: 700; color: #1B5E20; outline: none; padding: 2px; }
 
 @keyframes spin{to{transform:rotate(360deg)}}
+#fb-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#1a3a2a;z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.fb-box{background:#fff;border-radius:16px;padding:36px 40px;width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.fb-logo{font-size:44px;margin-bottom:12px}
+.fb-title{font-size:18px;font-weight:800;color:#1a3a2a;margin-bottom:8px}
+.fb-sub{font-size:12px;color:#888;margin-bottom:24px;line-height:1.6}
+.fb-google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border:1.5px solid #dadce0;border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:600;color:#1a3a2a;transition:all .15s}
+.fb-google-btn:hover{background:#f8f9fa;border-color:#c8b84a;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.fb-status{font-size:11px;color:#999;margin-top:14px;min-height:16px}
 #pw-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#1a3a2a;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px}
 .pw-box{background:#fff;border-radius:16px;padding:32px 36px;width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)}
 .pw-title{font-size:16px;font-weight:800;color:#1a3a2a;margin-bottom:6px}
@@ -157,7 +165,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 </style>
 <script>window.PRELOADED={"assets":[],"months":["2026년 1월"],"D":{},"nid":13,"yearAssets":{"2026":[]},"simTargetYear":2050,"goalData":{"title":"<div style=\"text-align: center;\"><font color=\"#0112f9\" size=\"5\">제목을 입력하세요.</font></div>","html":"\n      <p>실행계획을 입력해보세요.</p>\n    ","targetYear":"","targetAmt":""},"monthSavings":{"2026_0":0,"2026_1":4000000,"2026_2":4000000},"pw":"9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0"};</script></head>
 <body>
-<div id="pw-overlay" style="display:flex;">
+<div id="fb-overlay" style="display:flex;">
+  <div class="fb-box">
+    <div class="fb-logo">📊</div>
+    <div class="fb-title">포트폴리오 트래커</div>
+    <div class="fb-sub">Google 계정으로 로그인하면<br>데이터가 클라우드에 자동 저장됩니다</div>
+    <button class="fb-google-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Google로 로그인
+    </button>
+    <div class="fb-status" id="fb-status"></div>
+  </div>
+</div>
+
+<div id="pw-overlay" style="display:none;">
   <div class="pw-box">
     <div class="pw-title">🔒 포트폴리오 트래커</div>
     <div class="pw-sub">비밀번호를 입력하세요</div>
@@ -200,6 +221,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="hbtn" onclick="importJSON()" style="background:rgba(255,255,255,.15);border:0.5px solid rgba(255,255,255,.35);color:#fff" title="JSON 파일로 데이터 불러오기">📂 불러오기</button>
       <button class="hbtn" onclick="exportJSON()" style="background:rgba(255,192,0,.2);border:0.5px solid rgba(255,192,0,.5);color:#FFC000" title="JSON 파일로 데이터 백업">📤 데이터 백업</button>
       <button class="hbtn hbtn-dl" onclick="triggerDownload()">💾 다른이름으로 저장</button>
+      <div id="fb-user-info" style="display:flex;align-items:center;gap:5px;margin-left:4px"></div>
     </div>
   </div>
 </div>
@@ -629,6 +651,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
@@ -638,6 +663,94 @@ Chart.register(ChartDataLabels);
 var PRELOADED=window.PRELOADED||null;
 // 페이지 로드 직후 원본 HTML 소스 캡처 (renderTable 등 DOM 변경 전)
 var _ORIG_HTML = document.documentElement.outerHTML;
+
+// ── Firebase 설정 ──
+var _fbApp = firebase.initializeApp({
+  apiKey: "AIzaSyB0ANAwQXDQTdcLwK5GqGm-JBu8DCIMOJM",
+  authDomain: "portfoliotracker-8d35f.firebaseapp.com",
+  projectId: "portfoliotracker-8d35f",
+  storageBucket: "portfoliotracker-8d35f.firebasestorage.app",
+  messagingSenderId: "652248251251",
+  appId: "1:652248251251:web:2e786dc39a07332e2e6306"
+});
+var fbAuth = firebase.auth();
+var fbDb = firebase.firestore();
+var fbUser = null;
+
+function signInWithGoogle(){
+  var statusEl = document.getElementById('fb-status');
+  if(statusEl) statusEl.textContent = '로그인 중...';
+  var provider = new firebase.auth.GoogleAuthProvider();
+  fbAuth.signInWithPopup(provider).catch(function(err){
+    if(statusEl) statusEl.textContent = '로그인 실패: ' + err.message;
+  });
+}
+function fbSignOut(){
+  if(!confirm('로그아웃하시겠습니까?')) return;
+  fbAuth.signOut();
+}
+async function fbLoadAndInit(user){
+  var lsData = null;
+  try{if(window.localStorage){var r=window.localStorage.getItem('pf-v18');if(r)lsData=JSON.parse(r);}}catch(e){}
+  var lsTs = (lsData&&lsData._ts)||0;
+  var preloadedTs = (PRELOADED&&PRELOADED._ts)||0;
+  try{
+    var doc = await fbDb.collection('users').doc(user.uid).collection('portfolio').doc('data').get();
+    if(doc.exists){
+      var fsData = doc.data();
+      var fsTs = fsData._ts||0;
+      if(window.PRELOADED_STANDALONE){
+        if(PRELOADED) applyState(PRELOADED);
+        var best = (lsTs>preloadedTs&&lsTs>fsTs)?lsData:(fsTs>=lsTs?fsData:null);
+        if(best) applyState(best);
+      } else {
+        if(PRELOADED) applyState(PRELOADED);
+        if(fsTs>=lsTs){ applyState(fsData); }
+        else { if(lsData) applyState(lsData); }
+      }
+    } else {
+      if(window.PRELOADED_STANDALONE){
+        if(PRELOADED) applyState(PRELOADED);
+        if(lsData&&lsTs>preloadedTs) applyState(lsData);
+      } else {
+        if(PRELOADED) applyState(PRELOADED);
+        if(lsData) applyState(lsData);
+      }
+    }
+  } catch(e){
+    console.error('Firestore 불러오기 오류:', e);
+    if(window.PRELOADED_STANDALONE){
+      if(PRELOADED) applyState(PRELOADED);
+      if(lsData&&lsTs>preloadedTs) applyState(lsData);
+    } else {
+      if(PRELOADED) applyState(PRELOADED);
+      if(lsData) applyState(lsData);
+    }
+  }
+  init();
+}
+fbAuth.onAuthStateChanged(async function(user){
+  if(user){
+    fbUser = user;
+    var el = document.getElementById('fb-user-info');
+    if(el) el.innerHTML =
+      (user.photoURL?'<img src="'+user.photoURL+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0">':'')
+      +'<span style="font-size:11px;color:#a8c8a0;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis">'+(user.displayName||user.email)+'</span>'
+      +'<button onclick="fbSignOut()" style="font-size:10px;background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.25);color:#ccc;border-radius:4px;padding:2px 8px;cursor:pointer;white-space:nowrap;flex-shrink:0">로그아웃</button>';
+    await fbLoadAndInit(user);
+    document.getElementById('fb-overlay').style.display = 'none';
+    document.getElementById('pw-overlay').style.display = 'flex';
+  } else {
+    fbUser = null;
+    var el2 = document.getElementById('fb-user-info');
+    if(el2) el2.innerHTML = '';
+    document.getElementById('fb-overlay').style.display = 'flex';
+    document.getElementById('pw-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'none';
+    var statusEl2 = document.getElementById('fb-status');
+    if(statusEl2) statusEl2.textContent = '';
+  }
+});
 var defER={stock:15,etf:10,bond:4,savings:4,cash:3.5,real:8,realestate:6,lottery:20};
 var nid=1;
 var editingId=null;
@@ -824,7 +937,7 @@ function delMonth(idx){
 }
 
 var saveTimer=null;
-function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,800);}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,500);}
 function autoSave(){
   try{
     if(months.length>0) saveSnapshot(lastYear());
@@ -835,6 +948,11 @@ function autoSave(){
     var pw = window.PRELOADED ? (window.PRELOADED.pw || DEFAULT_PW_HASH) : DEFAULT_PW_HASH;
     var st=JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw,_ts:Date.now()});
     if(window.localStorage)window.localStorage.setItem('pf-v18',st);
+    if(fbUser){
+      var _d=JSON.parse(st);
+      fbDb.collection('users').doc(fbUser.uid).collection('portfolio').doc('data').set(_d)
+        .catch(function(e){console.error('Firestore 저장 오류:',e);});
+    }
   }catch(e){console.error('autoSave 오류:',e);}
 }
 
@@ -2286,21 +2404,7 @@ function fixNavPosition(){
   }
 }
 
-async function init(){
-  var preloadedTs = (PRELOADED && PRELOADED._ts) || 0;
-  var lsData = null;
-  try{if(window.localStorage){var r=window.localStorage.getItem('pf-v18');if(r)lsData=JSON.parse(r);}}catch(e){}
-  var lsTs = (lsData && lsData._ts) || 0;
-  if(window.PRELOADED_STANDALONE){
-    // STANDALONE 파일: 타임스탬프 비교로 더 최신 데이터 사용
-    // localStorage가 파일 생성 이후 저장된 데이터라면 우선 적용 (사용자의 로컬 편집 내역 보존)
-    if(PRELOADED) applyState(PRELOADED);
-    if(lsData && lsTs > preloadedTs) applyState(lsData);
-  } else {
-    // 일반 환경(GitHub Pages 등): PRELOADED 먼저, localStorage로 최신화
-    if(PRELOADED) applyState(PRELOADED);
-    if(lsData) applyState(lsData);
-  }
+function init(){
   var ly=lastYear(); if(!yearAssets[ly]) saveSnapshot(ly);
   renderTable();
   renderRebal();
@@ -2323,7 +2427,7 @@ window.addEventListener('resize',fixNavPosition);
 // 페이지 이탈 전 즉시 저장 (scheduleSave 타이머가 아직 안 끝났을 경우 대비)
 window.addEventListener('beforeunload',function(){if(saveTimer){clearTimeout(saveTimer);autoSave();}});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&saveTimer){clearTimeout(saveTimer);autoSave();}});
-init();
+// 초기화는 Firebase onAuthStateChanged에서 처리함
 </script>
 
 </body></html>
