@@ -221,6 +221,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="hbtn" onclick="importJSON()" style="background:rgba(255,255,255,.15);border:0.5px solid rgba(255,255,255,.35);color:#fff" title="JSON 파일로 데이터 불러오기">📂 불러오기</button>
       <button class="hbtn" onclick="exportJSON()" style="background:rgba(255,192,0,.2);border:0.5px solid rgba(255,192,0,.5);color:#FFC000" title="JSON 파일로 데이터 백업">📤 데이터 백업</button>
       <button class="hbtn hbtn-dl" onclick="triggerDownload()">💾 다른이름으로 저장</button>
+      <button id="cloud-save-btn" class="hbtn" onclick="manualCloudSave()" style="display:none;background:rgba(100,180,255,.18);border:0.5px solid rgba(100,180,255,.5);color:#7ecfff;gap:6px;align-items:center">
+        <span id="cloud-save-spinner" style="display:none;width:12px;height:12px;border:2px solid rgba(126,207,255,.3);border-top-color:#7ecfff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0"></span>
+        <span id="cloud-save-label">☁ 저장</span>
+      </button>
       <div id="fb-user-info" style="display:flex;align-items:center;gap:5px;margin-left:4px"></div>
     </div>
   </div>
@@ -741,6 +745,8 @@ fbAuth.onAuthStateChanged(async function(user){
     document.getElementById('fb-overlay').style.display = 'none';
     pwBuf = ''; pwUpdateDots();
     document.getElementById('pw-overlay').style.display = 'flex';
+    var csb = document.getElementById('cloud-save-btn');
+    if(csb) csb.style.display = 'inline-flex';
   } else {
     fbUser = null;
     var el2 = document.getElementById('fb-user-info');
@@ -748,6 +754,8 @@ fbAuth.onAuthStateChanged(async function(user){
     document.getElementById('fb-overlay').style.display = 'flex';
     document.getElementById('pw-overlay').style.display = 'none';
     document.getElementById('app').style.display = 'none';
+    var csb2 = document.getElementById('cloud-save-btn');
+    if(csb2) csb2.style.display = 'none';
     var statusEl2 = document.getElementById('fb-status');
     if(statusEl2) statusEl2.textContent = '';
   }
@@ -955,6 +963,35 @@ function autoSave(){
         .catch(function(e){console.error('Firestore 저장 오류:',e);});
     }
   }catch(e){console.error('autoSave 오류:',e);}
+}
+
+async function manualCloudSave(){
+  if(!fbUser) return;
+  var btn = document.getElementById('cloud-save-btn');
+  var spinner = document.getElementById('cloud-save-spinner');
+  var label = document.getElementById('cloud-save-label');
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+  label.textContent = '저장중';
+  try{
+    if(months.length>0) saveSnapshot(lastYear());
+    goalData.title = gid('goal-title').innerHTML;
+    goalData.html = gid('goal-content').innerHTML;
+    goalData.targetYear = gid('goal-target-year').value;
+    goalData.targetAmt = gid('goal-target-amt').value;
+    var pw = window.PRELOADED ? (window.PRELOADED.pw || DEFAULT_PW_HASH) : DEFAULT_PW_HASH;
+    var st = JSON.stringify({assets:assets,months:months,D:D,nid:nid,yearAssets:yearAssets,simTargetYear:simTargetYear,goalData:goalData,monthSavings:monthSavings,pw:pw,_ts:Date.now()});
+    if(window.localStorage) window.localStorage.setItem('pf-v18',st);
+    await fbDb.collection('users').doc(fbUser.uid).collection('portfolio').doc('data').set(JSON.parse(st));
+    spinner.style.display = 'none';
+    label.textContent = '✓ 저장됨';
+    setTimeout(function(){ label.textContent = '☁ 저장'; btn.disabled = false; }, 2000);
+  }catch(e){
+    console.error('수동 저장 오류:',e);
+    spinner.style.display = 'none';
+    label.textContent = '⚠ 실패';
+    setTimeout(function(){ label.textContent = '☁ 저장'; btn.disabled = false; }, 2000);
+  }
 }
 
 function applyState(s){
