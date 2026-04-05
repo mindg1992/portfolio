@@ -739,6 +739,7 @@ fbAuth.onAuthStateChanged(async function(user){
       +'<button onclick="fbSignOut()" style="font-size:10px;background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.25);color:#ccc;border-radius:4px;padding:2px 8px;cursor:pointer;white-space:nowrap;flex-shrink:0">로그아웃</button>';
     await fbLoadAndInit(user);
     document.getElementById('fb-overlay').style.display = 'none';
+    pwBuf = ''; pwUpdateDots();
     document.getElementById('pw-overlay').style.display = 'flex';
   } else {
     fbUser = null;
