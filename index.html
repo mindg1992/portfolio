@@ -1,5 +1,13 @@
-<html><head>
+<html lang="ko"><head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a3a2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="포트폴리오">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="apple-touch-icon" href="./icon.svg">
 <title>포트폴리오 트래커 v1.9.4</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -8,8 +16,13 @@ input[type=number]:hover::-webkit-inner-spin-button,input[type=number]:hover::-w
 input[type=number]{-moz-appearance:textfield}
 
 div,span,td,th,button,input,select{font-family:-apple-system,'Apple SD Gothic Neo',sans-serif}
-.nav{display:flex;border-bottom:1px solid #c8b84a;background:#1a3a2a;position:sticky;top:0;z-index:50}
+.nav{display:flex;flex-wrap:wrap;border-bottom:1px solid #c8b84a;background:#1a3a2a;position:sticky;top:0;z-index:50}
 .nt{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:none;color:#a8c8a0;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+@media (max-width:768px){
+  .nt{padding:8px 9px;font-size:11px}
+  .hbtn,.hbtn-yr{padding:5px 8px;font-size:10px}
+  #app-header{padding:6px 8px !important}
+}
 .nt.on{color:#fff;font-weight:600;border-bottom-color:#FFC000}
 .nt:hover:not(.on){color:#e0f0d8;background:rgba(255,255,255,.07)}
 .sc{display:none}.sc.on{display:block}
@@ -659,6 +672,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
 <script>
 Chart.register(ChartDataLabels);
+
+// ── Service Worker 등록 (PWA 오프라인 지원) ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js')
+      .catch(function(err) { console.warn('SW 등록 실패:', err); });
+  });
+}
 
 var PRELOADED=window.PRELOADED||null;
 // 페이지 로드 직후 원본 HTML 소스 캡처 (renderTable 등 DOM 변경 전)
@@ -1826,16 +1847,16 @@ function renderCharts(){
   updateYrSelectors(); var yrs=allYears();
 
   if(gC)gC.destroy(); 
-  gC=new Chart(gid('g-cv'),{ type:'line', data:{labels:ALL_MON,datasets:yrs.map((yr,i)=>({label:yr+'년',data:getYrMonData(yr),borderColor:PAL_YR[i%PAL_YR.length],fill:false,tension:.35,pointRadius:5,borderWidth:2}))}, options:{ responsive:true,maintainAspectRatio:false, plugins:{ legend:{display:false}, datalabels: { align: 'top', anchor: 'end', offset: 4, formatter: function(value) { return value !== null && value !== 0 ? '₩' + Math.round(value).toLocaleString() : ''; }, font: { size: 10, weight: 'bold' }, color: '#444' } }, scales:{ y:{ beginAtZero: false, ticks:{ callback:function(value){ var a=Math.abs(value),s=value<0?'-':''; if(a>=1000000000000) return s+(a/1000000000000).toFixed(2)+'조'; if(a>=100000000) return s+(a/100000000).toFixed(2)+'억'; if(a>=10000) return s+(a/10000).toFixed(0)+'만원'; return s+a.toLocaleString(); }}, padding: 20 } }, layout: { padding: { top: 25 } } } });
+  gC=new Chart(gid('g-cv'),{ type:'line', data:{labels:ALL_MON,datasets:yrs.map((yr,i)=>({label:yr+'년',data:getYrMonData(yr),borderColor:PAL_YR[i%PAL_YR.length],fill:false,tension:.35,pointRadius:5,borderWidth:2}))}, options:{ responsive:true,maintainAspectRatio:false, plugins:{ legend:{display:false}, datalabels: { align: 'top', anchor: 'end', offset: 4, formatter: function(value) { if (value === null || value === 0) return ''; return window.innerWidth <= 768 ? fmtSh(value) : '₩' + Math.round(value).toLocaleString(); }, font: { size: 10, weight: 'bold' }, color: '#444' } }, scales:{ y:{ beginAtZero: false, ticks:{ callback:function(value){ var a=Math.abs(value),s=value<0?'-':''; if(a>=1000000000000) return s+(a/1000000000000).toFixed(2)+'조'; if(a>=100000000) return s+(a/100000000).toFixed(2)+'억'; if(a>=10000) return s+(a/10000).toFixed(0)+'만원'; return s+a.toLocaleString(); }}, padding: 20 } }, layout: { padding: { top: 25 } } } });
 
   var skYr=parseInt(gid('yr-sel-sk').value); 
   if(skC)skC.destroy(); 
-  skC=new Chart(gid('sk-cv'),{ type:'bar', data:{labels:ALL_MON,datasets:getYrAssetData(skYr).map((d,i)=>({label:d.name,data:d.data,backgroundColor:PAL[i%PAL.length]+'cc'}))}, options:{ responsive:true,maintainAspectRatio:false, plugins: { datalabels: { align: 'top', anchor: 'end', offset: 2, formatter: function(value, context) { let total = 0; context.chart.data.datasets.forEach(ds => { total += (ds.data[context.dataIndex] || 0); }); return (context.datasetIndex === context.chart.data.datasets.length - 1 && total > 0) ? '₩' + Math.round(total).toLocaleString() : ''; }, font: { size: 9, weight: 'bold' }, color: '#444' } }, scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:function(value){return fmtKor(value);}}}} } });
+  skC=new Chart(gid('sk-cv'),{ type:'bar', data:{labels:ALL_MON,datasets:getYrAssetData(skYr).map((d,i)=>({label:d.name,data:d.data,backgroundColor:PAL[i%PAL.length]+'cc'}))}, options:{ responsive:true,maintainAspectRatio:false, plugins: { datalabels: { align: 'top', anchor: 'end', offset: 2, formatter: function(value, context) { let total = 0; context.chart.data.datasets.forEach(ds => { total += (ds.data[context.dataIndex] || 0); }); if (context.datasetIndex !== context.chart.data.datasets.length - 1 || total <= 0) return ''; return window.innerWidth <= 768 ? fmtSh(total) : '₩' + Math.round(total).toLocaleString(); }, font: { size: 9, weight: 'bold' }, color: '#444' } }, scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:function(value){return fmtKor(value);}}}} } });
 
   var incYr=parseInt(gid('yr-sel-inc').value); 
   if(incC)incC.destroy(); 
   var incData=getYrMonInc(incYr); 
-  incC=new Chart(gid('inc-cv'),{ type:'bar', data:{labels:ALL_MON,datasets:[{data:incData,backgroundColor:incData.map(v=>v>=0?'rgba(27,94,32,.7)':'rgba(183,28,28,.7)')}]}, options:{ responsive:true,maintainAspectRatio:false, plugins:{ legend:{display:false}, datalabels: { align: function(context) { return context.dataset.data[context.dataIndex] >= 0 ? 'top' : 'bottom'; }, anchor: function(context) { return context.dataset.data[context.dataIndex] >= 0 ? 'end' : 'start'; }, offset: 4, formatter: function(value) { if (value === null || value === 0) return ''; const sign = value > 0 ? '+' : ''; return sign + '₩' + Math.round(value).toLocaleString(); }, font: { size: 9, weight: 'bold' }, color: (context) => context.dataset.data[context.dataIndex] >= 0 ? '#1B5E20' : '#C62828' } }, scales:{y:{ticks:{callback:function(value){return fmtKor(value);}}}} } });
+  incC=new Chart(gid('inc-cv'),{ type:'bar', data:{labels:ALL_MON,datasets:[{data:incData,backgroundColor:incData.map(v=>v>=0?'rgba(27,94,32,.7)':'rgba(183,28,28,.7)')}]}, options:{ responsive:true,maintainAspectRatio:false, plugins:{ legend:{display:false}, datalabels: { align: function(context) { return context.dataset.data[context.dataIndex] >= 0 ? 'top' : 'bottom'; }, anchor: function(context) { return context.dataset.data[context.dataIndex] >= 0 ? 'end' : 'start'; }, offset: 4, formatter: function(value) { if (value === null || value === 0) return ''; const sign = value > 0 ? '+' : ''; return window.innerWidth <= 768 ? (sign + fmtSh(value)) : (sign + '₩' + Math.round(value).toLocaleString()); }, font: { size: 9, weight: 'bold' }, color: (context) => context.dataset.data[context.dataIndex] >= 0 ? '#1B5E20' : '#C62828' } }, scales:{y:{ticks:{callback:function(value){return fmtKor(value);}}}} } });
 }
 
 var rebBarC, rebDiffC;
@@ -2246,6 +2267,8 @@ async function askAI(type) {
   var hasLoan = yrAssets.some(function(a){ return a.type === 'loan'; });
   var ctx = buildPortfolioContext();
   var goalStr = goalTargetYear + '년까지 ' + fmtKor(goalTargetAmt) + ' 달성';
+  var _today = new Date();
+  var todayYM = _today.getFullYear() + '년 ' + (_today.getMonth()+1) + '월';
 
   var prompts = {
     1: '다음은 저의 현재 포트폴리오 현황입니다:\n\n' + ctx
@@ -2254,7 +2277,7 @@ async function askAI(type) {
       + '- 투자 시작 이후 현재까지 실제 수익률(적립금 제외 순수익 기준): ' + actualReturnStr + '\n'
       + (hasLoan ? '※ 주의: 위 실제 수익률(순수익)은 대출금이 포함된 자산 합계 기준으로 계산된 값입니다. 대출금을 제외한 순수 자산(전체 자산 합계 = 대출 제외 기준) 대비 실제 수익률로 평가해 주세요.\n' : '')
       + '- 위 실제 수익률이 목표 기대수익률 대비 어떤 수준인지 평가해 주세요.\n\n'
-      + '위 포트폴리오와 현재 2026년 3월 기준 한국 시장 상황 및 글로벌 시장 상황 등을 반영하여 아래를 분석해 주세요:\n\n'
+      + '위 포트폴리오와 현재 ' + todayYM + ' 기준 한국 시장 상황 및 글로벌 시장 상황 등을 반영하여 아래를 분석해 주세요:\n\n'
       + '① AI가 현재 시장흐름을 반영한 현실적 ' + goalTargetYear + '년 자산 전망 (낙관/기본/보수 3가지 시나리오, 구체적 금액)\n'
       + '② 나의 기대수익률 기반 예상치와 AI 분석 예상치의 차이 및 원인 설명\n'
       + '③ 실제 수익률(' + actualReturnStr + ')에 대한 평가 및 개선 포인트' + (hasLoan ? ' (※이 수익률은 대출금이 포함된 자산 기준이므로, 대출금을 제외한 전체 자산 합계 기준으로도 함께 평가해 주세요)' : '') + '\n'
@@ -2262,7 +2285,7 @@ async function askAI(type) {
       + '\n한국어로 답변해 주세요.',
     2: (function(){
       var holdingNames = yrAssets.map(function(a){ return a.name + (a.sub?' '+a.sub:''); }).join(', ');
-      return '오늘(2026년 3월 기준) 다음 내용을 한국어로 상세히 알려주세요:\n\n'
+      return '오늘(' + todayYM + ' 기준) 다음 내용을 한국어로 상세히 알려주세요:\n\n'
         + '1) 오늘의 주요 글로벌 경제뉴스 요약 (3~5가지)\n'
         + '2) 아래 보유 종목들의 현재 시장 동향 및 전망:\n'
         + '   - 보유 종목: ' + holdingNames + '\n'
@@ -2274,7 +2297,7 @@ async function askAI(type) {
       var lastSavAmt = lastSav > 0 ? fmt(lastSav)+'원' : '미입력';
       return '다음은 저의 현재 포트폴리오 현황입니다:\n\n' + ctx
         + '\n■ 이번 달(' + lastSavDisp + ') 적립금: ₩' + lastSavAmt
-        + '\n\n현재 2026년 3월 국내 및 글로벌 경제 흐름을 분석하여, 이번 달(' + lastSavDisp + ') 적립금 ₩' + lastSavAmt + '을 각 자산에 얼마씩 투자할지 추천해 주세요.\n'
+        + '\n\n현재 ' + todayYM + ' 국내 및 글로벌 경제 흐름을 분석하여, 이번 달(' + lastSavDisp + ') 적립금 ₩' + lastSavAmt + '을 각 자산에 얼마씩 투자할지 추천해 주세요.\n'
         + '현재 포트폴리오 리밸런싱 상황(현재비중 vs 목표비중)도 반영하여 구체적인 금액과 비율로 알려주세요.\n'
         + '한국어로 답변해 주세요.';
     })()
